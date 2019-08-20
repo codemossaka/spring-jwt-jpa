@@ -30,18 +30,24 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailVerificationTokenService emailVerificationTokenService;
-    private final UserDeviceService userDeviceService;
+//    private final UserDeviceService userDeviceService;
     private final PasswordResetTokenService passwordResetTokenService;
 
     @Autowired
-    public AuthService(UserService userService, JwtTokenProvider tokenProvider, RefreshTokenService refreshTokenService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, EmailVerificationTokenService emailVerificationTokenService, UserDeviceService userDeviceService, PasswordResetTokenService passwordResetTokenService) {
+    public AuthService(UserService userService,
+                       JwtTokenProvider tokenProvider,
+                       RefreshTokenService refreshTokenService,
+                       PasswordEncoder passwordEncoder,
+                       AuthenticationManager authenticationManager,
+                       EmailVerificationTokenService emailVerificationTokenService,
+                       PasswordResetTokenService passwordResetTokenService) {
         this.userService = userService;
         this.tokenProvider = tokenProvider;
         this.refreshTokenService = refreshTokenService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.emailVerificationTokenService = emailVerificationTokenService;
-        this.userDeviceService = userDeviceService;
+//        this.userDeviceService = userDeviceService;
         this.passwordResetTokenService = passwordResetTokenService;
     }
 
@@ -166,27 +172,27 @@ public class AuthService {
         return tokenProvider.generateTokenFromUserId(userId);
     }
 
-    /**
-     * Creates and persists the refresh token for the user device. If device exists
-     * already, we don't care. Unused devices with expired tokens should be cleaned
-     * with a cron job. The generated token would be encapsulated within the jwt.
-     * Remove the existing refresh token as the old one should not remain valid.
-     */
-    public Optional<RefreshToken> createAndPersistRefreshTokenForDevice(Authentication authentication, LoginRequest loginRequest) {
-        User currentUser = (User) authentication.getPrincipal();
-        userDeviceService.findByUserId(currentUser.getId())
-                .map(UserDevice::getRefreshToken)
-                .map(RefreshToken::getId)
-                .ifPresent(refreshTokenService::deleteById);
-
-        UserDevice userDevice = userDeviceService.createUserDevice(loginRequest.getDeviceInfo());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken();
-        userDevice.setUser(currentUser);
-        userDevice.setRefreshToken(refreshToken);
-        refreshToken.setUserDevice(userDevice);
-        refreshToken = refreshTokenService.save(refreshToken);
-        return Optional.ofNullable(refreshToken);
-    }
+//    /**
+//     * Creates and persists the refresh token for the user device. If device exists
+//     * already, we don't care. Unused devices with expired tokens should be cleaned
+//     * with a cron job. The generated token would be encapsulated within the jwt.
+//     * Remove the existing refresh token as the old one should not remain valid.
+//     */
+//    public Optional<RefreshToken> createAndPersistRefreshTokenForDevice(Authentication authentication, LoginRequest loginRequest) {
+//        User currentUser = (User) authentication.getPrincipal();
+//        userDeviceService.findByUserId(currentUser.getId())
+//                .map(UserDevice::getRefreshToken)
+//                .map(RefreshToken::getId)
+//                .ifPresent(refreshTokenService::deleteById);
+//
+//        UserDevice userDevice = userDeviceService.createUserDevice(loginRequest.getDeviceInfo());
+//        RefreshToken refreshToken = refreshTokenService.createRefreshToken();
+//        userDevice.setUser(currentUser);
+//        userDevice.setRefreshToken(refreshToken);
+//        refreshToken.setUserDevice(userDevice);
+//        refreshToken = refreshTokenService.save(refreshToken);
+//        return Optional.ofNullable(refreshToken);
+//    }
 
     /**
      * Refresh the expired jwt token using a refresh token and device info. The
@@ -200,7 +206,7 @@ public class AuthService {
         return Optional.of(refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshToken -> {
                     refreshTokenService.verifyExpiration(refreshToken);
-                    userDeviceService.verifyRefreshAvailability(refreshToken);
+//                    userDeviceService.verifyRefreshAvailability(refreshToken);
                     refreshTokenService.increaseCount(refreshToken);
                     return refreshToken;
                 })

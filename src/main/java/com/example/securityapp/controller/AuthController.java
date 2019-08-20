@@ -72,7 +72,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     @ApiOperation(value = "Logs the user in to the system and return the auth tokens")
-    public ResponseEntity authenticateUser(@ApiParam(value = "The LoginRequest payload") @Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity authenticateUser(@ApiParam(value = "The LoginRequest payload") @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authService.authenticateUser(loginRequest)
                 .orElseThrow(() -> new UserLoginException("Couldn't login user [" + loginRequest + "]"));
